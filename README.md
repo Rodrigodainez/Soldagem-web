@@ -20,7 +20,7 @@ Aplicação web desenvolvida em Python Flask para gerenciamento de EPS/WPS de so
 
 ## Deploy Online
 
-https://soldagem-rodrigo-app.azurewebsites.net
+https://soldagem-rodrigo-app-brexa3h2h6hjhbfn.australiaeast-01.azurewebsites.net
 
 ## Como executar localmente
 
