@@ -2,13 +2,13 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-
     <title>Sistema Soldagem</title>
 
-    <!-- Integrar Bootstrap -->
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        /* Melhorar a aparência do campo de busca */
+        /* Aparência do campo de busca */
         #search {
             transition: box-shadow 0.3s, border-color 0.3s;
         }
@@ -16,7 +16,7 @@
             box-shadow: 0 0 0 4px rgba(88, 115, 255, 0.3);
             border-color: #5873ff;
         }
-        /* Adicionar espaçamento ao rodapé */
+        /* Rodapé */
         footer {
             margin-top: auto;
             padding: 1rem;
@@ -27,7 +27,7 @@
 
 <body class="bg-dark text-light d-flex flex-column min-vh-100">
 
-    <!-- Barra de navegação -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="#">🔥 Sistema de Soldagem</a>
@@ -36,7 +36,7 @@
 
     <div class="container mt-5">
 
-        <!-- Cabeçalho e barra de busca -->
+        <!-- Cabeçalho + busca -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3">Sistema de Busca</h1>
             <input
@@ -61,7 +61,7 @@
                 <tbody id="tableBody">
                     {% for item in itens %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
+                        <td>{{ loop.index }}</td>
                         <td>{{ item.eps }}</td>
                         <td>{{ item.wps }}</td>
                         <td>{{ item.obs }}</td>
@@ -83,11 +83,28 @@
         <small>&copy; 2026 Sistema de Soldagem. Todos os direitos reservados.</small>
     </footer>
 
-    <!-- Script -->
+    <!-- Script de busca -->
     <script>
-    const search = document.getElementById("search");
-    const rows = document.querySelectorAll("#tableBody tr");
-    const emptyState = document.getElementById("emptyState");
+        const search = document.getElementById("search");
+        const rows = document.querySelectorAll("#tableBody tr");
+        const emptyState = document.getElementById("emptyState");
 
-    search.addEventListener("keyup", () => {
-        const
+        search.addEventListener("keyup", () => {
+            const value = search.value.toLowerCase();
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(value)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            emptyState.classList.toggle("d-none", visibleCount !== 0);
+        });
+    </script>
+</body>
+</html>
