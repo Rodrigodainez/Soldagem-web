@@ -106,85 +106,114 @@ def index():
 # ---------- EPS ----------
 @app.route("/eps")
 def eps_page():
+    acesso = verificar_acesso()
+
+    if acesso is None:
+        return "Usuário não autenticado", 401
+
+    if acesso is False:
+        return "Acesso negado", 403
+
     itens = carregar_itens()
     return render_template("index.html", itens=itens, unidades=UNIDADES)
 
-
-
 @app.route("/api/eps", methods=["GET"])
 def api_eps_list():
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+
     termo = (request.args.get("q") or "").lower()
     itens = carregar_itens()
-    if termo:
-        itens = [
-            it for it in itens
-            if any(termo in str(it.get(c, "")).lower() for c in EPS_CAMPOS)
-        ]
     return jsonify(itens)
 
 
 @app.route("/api/eps", methods=["POST"])
 def api_eps_create():
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+
     data = request.get_json(force=True) or {}
     eps = (data.get("eps") or "").strip()
     if not eps:
         return jsonify({"error": "Campo EPS é obrigatório."}), 400
+
     novo = {k: (data.get(k) or "").strip() for k in EPS_CAMPOS}
     itens = carregar_itens()
     itens.append(novo)
     salvar_itens(itens)
     return jsonify(novo), 201
 
-
 @app.route("/api/eps/<eps_id>", methods=["PUT"])
 def api_eps_update(eps_id):
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+
     data = request.get_json(force=True) or {}
     itens = carregar_itens()
+
     for it in itens:
         if it.get("eps") == eps_id:
             for k in EPS_CAMPOS:
                 if k in data:
                     it[k] = (data.get(k) or "").strip()
+
             for k in ("espessura", "chanfro", "angulo"):
                 it.pop(k, None)
+
             salvar_itens(itens)
             return jsonify(it)
-    return jsonify({"error": "EPS não encontrada."}), 404
 
+    return jsonify({"error": "EPS não encontrada."}), 404
 
 @app.route("/api/eps/<eps_id>", methods=["DELETE"])
 def api_eps_delete(eps_id):
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+
     itens = carregar_itens()
     novos = [it for it in itens if it.get("eps") != eps_id]
+
     if len(novos) == len(itens):
         return jsonify({"error": "EPS não encontrada."}), 404
+
     salvar_itens(novos)
     return jsonify({"ok": True})
-
 
 # ---------- RQPS ----------
 @app.route("/rqps")
 def rqps_page():
     return render_template("rqps.html", normas=NORMAS)
 
-
 @app.route("/api/rqps", methods=["GET"])
 def api_rqps_list():
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+
     termo = (request.args.get("q") or "").lower()
     norma = request.args.get("norma") or "Todos"
     itens = carregar_rqps()
+
     if norma != "Todos":
         itens = [it for it in itens if it.get("norma", "") == norma]
+
     if termo:
         itens = [
             it for it in itens
             if any(termo in str(v).lower() for v in it.values())
         ]
+        
     return jsonify(itens)
-
 
 @app.route("/api/rqps", methods=["POST"])
 def api_rqps_create():
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
     data = request.get_json(force=True) or {}
     novo = {k: (data.get(k) or "").strip() for k in RQPS_CAMPOS}
     if not novo["eps"] and not novo["rqps"]:
@@ -197,6 +226,10 @@ def api_rqps_create():
 
 @app.route("/api/rqps/<eps_id>/<rqps_id>", methods=["PUT"])
 def api_rqps_update(eps_id, rqps_id):
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+        
     data = request.get_json(force=True) or {}
     itens = carregar_rqps()
     for it in itens:
@@ -208,9 +241,12 @@ def api_rqps_update(eps_id, rqps_id):
             return jsonify(it)
     return jsonify({"error": "Registro não encontrado."}), 404
 
-
 @app.route("/api/rqps/<eps_id>/<rqps_id>", methods=["DELETE"])
 def api_rqps_delete(eps_id, rqps_id):
+    acesso = verificar_acesso()
+    if acesso is not True:
+        return "Acesso negado", 403
+        
     itens = carregar_rqps()
     novos = [it for it in itens
              if not (it.get("eps", "") == eps_id and it.get("rqps", "") == rqps_id)]
