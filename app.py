@@ -23,7 +23,6 @@ USUARIOS_PERMITIDOS = [
     "47688@eep.br"
 ]
 
-
 def verificar_acesso():
     try:
         principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
@@ -32,7 +31,6 @@ def verificar_acesso():
             print("SEM PRINCIPAL HEADER")
             return False
 
-        # decode correto (IMPORTANTE!)
         decoded_bytes = base64.b64decode(principal)
         decoded_str = decoded_bytes.decode("utf-8")
 
@@ -46,24 +44,24 @@ def verificar_acesso():
             if claim.get("typ") in ["preferred_username", "email", "name"]:
                 user = claim.get("val")
 
+        print("EMAIL EXTRAÍDO:", user)
+
+        if not user:
+            print("SEM EMAIL")
+            return False
+
+        user = user.strip().lower()
+        permitidos = [u.strip().lower() for u in USUARIOS_PERMITIDOS]
+
+        if not any(p.split("@")[0] in user for p in permitidos):
+            print("ACESSO NEGADO:", user)
+            return False
+
+        return True
+
     except Exception as e:
         print("ERRO NA AUTENTICAÇÃO:", str(e))
         return False
-        
-user = user.strip().lower()
-permitidos = [u.strip().lower() for u in USUARIOS_PERMITIDOS]
-
-if not any(p.split("@")[0] in user for p in permitidos):
-    print("ACESSO NEGADO:", user)
-    return False
-
-return True
-
-    except Exception as e:
-        print("ERRO NA AUTENTICAÇÃO:", str(e))
-        return False
-
-    print("EMAIL EXTRAÍDO:", user)
     
 DATA_DIR = os.environ.get("SOLDAGEM_DATA_DIR")
 if not DATA_DIR:
