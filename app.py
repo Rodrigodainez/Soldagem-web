@@ -18,7 +18,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 # Mantém o caminho do executável quando estiver no Windows/rede.
 # ============================================================
 
-USUARIOS_PERMITIDOS: [ 
+USUARIOS_PERMITIDOS = [ 
     "R.Diniz_S@outlook.com" 
 ]
 
@@ -59,7 +59,7 @@ def verificar_acesso():
 
     except Exception as e:
         print("ERRO NA AUTENTICAÇÃO:", str(e))
-        return Fa
+        return False
 
     print("EMAIL EXTRAÍDO:", user)
     
