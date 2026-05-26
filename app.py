@@ -16,6 +16,23 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 # CAMINHOS — em produção (Azure) use /home/data ou variável de ambiente.
 # Mantém o caminho do executável quando estiver no Windows/rede.
 # ============================================================
+USUARIOS_PERMITIDOS = [
+    "seuemail@empresa.com"
+]
+
+def verificar_acesso():
+    user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+
+    print("USER:", user)  # debug
+
+    if not user:
+        return False
+
+    if user not in USUARIOS_PERMITIDOS:
+        return False
+
+    return True
+    
 DATA_DIR = os.environ.get("SOLDAGEM_DATA_DIR")
 if not DATA_DIR:
     # fallback: pasta "data" ao lado do app
