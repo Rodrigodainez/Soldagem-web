@@ -48,15 +48,18 @@ def verificar_acesso():
 
         print("EMAIL EXTRAÍDO:", user)
 
-        if not user:
-            print("SEM EMAIL")
-            return False
+if not user:
+    print("SEM EMAIL")
+    return False
 
-        if user.lower() not in [u.lower() for u in USUARIOS_PERMITIDOS]:
-            print("USUÁRIO NÃO PERMITIDO:", user)
-            return False
+user = user.strip().lower()
+permitidos = [u.strip().lower() for u in USUARIOS_PERMITIDOS]
 
-        return True
+if not any(p.split("@")[0] in user for p in permitidos):
+    print("ACESSO NEGADO:", user)
+    return False
+
+return True
 
     except Exception as e:
         print("ERRO NA AUTENTICAÇÃO:", str(e))
