@@ -50,10 +50,6 @@ def verificar_acesso():
         print("ERRO NA AUTENTICAÇÃO:", str(e))
         return False
         
-if not user:
-    print("SEM EMAIL")
-    return False
-
 user = user.strip().lower()
 permitidos = [u.strip().lower() for u in USUARIOS_PERMITIDOS]
 
