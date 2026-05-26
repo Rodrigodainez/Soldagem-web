@@ -46,8 +46,10 @@ def verificar_acesso():
             if claim.get("typ") in ["preferred_username", "email", "name"]:
                 user = claim.get("val")
 
-        print("EMAIL EXTRAÍDO:", user)
-
+    except Exception as e:
+        print("ERRO NA AUTENTICAÇÃO:", str(e))
+        return False
+        
 if not user:
     print("SEM EMAIL")
     return False
