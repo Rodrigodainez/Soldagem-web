@@ -23,32 +23,36 @@ USUARIOS_PERMITIDOS: [
 ]
 
 def verificar_acesso():
-    principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
+    try:
+        principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
 
-    if not principal:
-        print("SEM PRINCIPAL")
+        if not principal:
+            print("SEM PRINCIPAL")
+            return False
+
+        decoded = base64.b64decode(principal)
+        user_data = json.loads(decoded)
+
+        print("USER DATA:", user_data)
+
+        user = None
+        for claim in user_data.get("claims", []):
+            if claim.get("typ") in ["preferred_username", "email", "name"]:
+                user = claim.get("val")
+
+        print("EMAIL EXTRAÍDO:", user)
+
+        if not user:
+            return False
+
+        if user.lower() not in [u.lower() for u in USUARIOS_PERMITIDOS]:
+            return False
+
+        return True
+
+    except Exception as e:
+        print("ERRO NA AUTENTICAÇÃO:", str(e))
         return False
-
-    decoded = base64.b64decode(principal)
-    user_data = json.loads(decoded)
-
-    print("USER DATA:", user_data)
-
-    # pega email correto
-    user = None
-    for claim in user_data.get("claims", []):
-    if claim.get("typ") in ["preferred_username", "email", "name"]:
-        user = claim.get("val")
-
-    print("EMAIL EXTRAÍDO:", user)
-
-    if not user:
-        return False
-
-    if user not in USUARIOS_PERMITIDOS:
-        return False
-
-    return True
     
     print("EMAIL EXTRAÍDO:", user)
     
