@@ -8,6 +8,7 @@ Rodar local:
 
 Azure App Service: usa gunicorn -> app:app
 """
+import base64
 import json
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
@@ -16,14 +17,30 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 # CAMINHOS — em produção (Azure) use /home/data ou variável de ambiente.
 # Mantém o caminho do executável quando estiver no Windows/rede.
 # ============================================================
-USUARIOS_PERMITIDOS = [
-    "R.Diniz_S@outlook.com"
+
+USUARIOS_PERMITIDOS: [ 
+    "R.Diniz_S@outlook.com" 
 ]
 
 def verificar_acesso():
-    user = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+    principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
 
-    print("USER:", user)  # debug
+    if not principal:
+        print("SEM PRINCIPAL")
+        return False
+
+    decoded = base64.b64decode(principal)
+    user_data = json.loads(decoded)
+
+    print("USER DATA:", user_data)
+
+    # pega email correto
+    user = None
+    for claim in user_data.get("claims", []):
+    if claim.get("typ") in ["preferred_username", "email", "name"]:
+        user = claim.get("val")
+
+    print("EMAIL EXTRAÍDO:", user)
 
     if not user:
         return False
@@ -32,6 +49,8 @@ def verificar_acesso():
         return False
 
     return True
+    
+    print("EMAIL EXTRAÍDO:", user)
     
 DATA_DIR = os.environ.get("SOLDAGEM_DATA_DIR")
 if not DATA_DIR:
