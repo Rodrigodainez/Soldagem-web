@@ -22,20 +22,25 @@ USUARIOS_PERMITIDOS: [
     "R.Diniz_S@outlook.com" 
 ]
 
+
 def verificar_acesso():
     try:
         principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
 
         if not principal:
-            print("SEM PRINCIPAL")
+            print("SEM PRINCIPAL HEADER")
             return False
 
-        decoded = base64.b64decode(principal)
-        user_data = json.loads(decoded)
+        # decode correto (IMPORTANTE!)
+        decoded_bytes = base64.b64decode(principal)
+        decoded_str = decoded_bytes.decode("utf-8")
+
+        user_data = json.loads(decoded_str)
 
         print("USER DATA:", user_data)
 
         user = None
+
         for claim in user_data.get("claims", []):
             if claim.get("typ") in ["preferred_username", "email", "name"]:
                 user = claim.get("val")
@@ -43,17 +48,19 @@ def verificar_acesso():
         print("EMAIL EXTRAÍDO:", user)
 
         if not user:
+            print("SEM EMAIL")
             return False
 
         if user.lower() not in [u.lower() for u in USUARIOS_PERMITIDOS]:
+            print("USUÁRIO NÃO PERMITIDO:", user)
             return False
 
         return True
 
     except Exception as e:
         print("ERRO NA AUTENTICAÇÃO:", str(e))
-        return False
-    
+        return Fa
+
     print("EMAIL EXTRAÍDO:", user)
     
 DATA_DIR = os.environ.get("SOLDAGEM_DATA_DIR")
