@@ -41,8 +41,19 @@ def verificar_acesso():
         user = None
 
         for claim in user_data.get("claims", []):
-            if claim.get("typ") in ["preferred_username", "email", "name"]:
-                user = claim.get("val")
+    typ = claim.get("typ", "").lower()
+    val = claim.get("val", "")
+
+    print("CLAIM:", typ, val)
+
+    if (
+        "preferred_username" in typ
+        or typ.endswith("/emailaddress")
+        or typ.endswith("/name")
+        or typ == "email"
+    ):
+        user = val
+        break
 
         print("EMAIL EXTRAÍDO:", user)
 
@@ -53,7 +64,7 @@ def verificar_acesso():
         user = user.strip().lower()
         permitidos = [u.strip().lower() for u in USUARIOS_PERMITIDOS]
 
-        if not any(p.split("@")[0] in user for p in permitidos):
+        if user not in permitidos:
             print("ACESSO NEGADO:", user)
             return False
 
