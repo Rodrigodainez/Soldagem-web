@@ -10,6 +10,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 USUARIOS_PERMITIDOS = [
     "R.Diniz_S@outlook.com",
     "47688@eep.br",
+    "lehonvieira.2004@outlook.com",
 ]
 
 
